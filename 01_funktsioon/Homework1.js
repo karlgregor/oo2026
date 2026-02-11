@@ -1,4 +1,4 @@
-// dailyPrices – electricity prices in cents (24 hours) for 02-10-2026
+// dailyPrices – electricity prices in cents (24 hours) for 10-02-2026
 // Data is from https://elektrihind.ee/api/stock_price_daily.php
 var dailyPrices = [
     14.88, 14.65, 15.47, 16.19, 13.66, 13.51,
