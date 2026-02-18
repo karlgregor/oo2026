@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resistor Example</title>
+    <script src="03_resistor.js"></script>
+    <script>
+    let r1;
+    let r2;
+    let r3;
+
+    function startPage() {
+        console.log("Page loaded");
+
+        let canvas = document.getElementById("resistorCanvas");
+        let ctx = canvas.getContext("2d");
+        r1 = new Resistor2("250", ctx, 10, 250, 50);
+        r2 = new Resistor2("120", ctx, 10, 350, 150);
+        r3 = new Resistor2("80", ctx, 10, 450, 250);
+
+        document.getElementById("resistorValue1").value = String(r1.getR());
+        document.getElementById("value1").innerText = r1.getR();
+        document.getElementById("resistorValue2").value = String(r2.getR());
+        document.getElementById("value2").innerText = r2.getR();
+        document.getElementById("resistorValue3").value = String(r3.getR());
+        document.getElementById("value3").innerText = r3.getR();
+    }
+
+    function updateResistor(input) {
+        const value = resistorValue1.valueAsNumber;
+        r1.setR(Number(value));
+        document.getElementById("value1").innerText = value;
+
+    }
+    function updateResistor2(input) {
+        const value2 = resistorValue2.valueAsNumber;
+        r2.setR(Number(value2));
+        document.getElementById("value2").innerText = value2;
+
+    }
+    function updateResistor3(input) {
+        const value3 = resistorValue3.valueAsNumber;
+        r3.setR(Number(value3));
+        document.getElementById("value3").innerText = value3;
+
+    }
+    </script>
+</head>
+<body onload="startPage()">
+    <input type="range" id="resistorValue1" min="0" max="1000" value="250" oninput="updateResistor()">
+    <span id="value1"></span> Ω
+    <input type="range" id="resistorValue2" min="0" max="1000" value="250" oninput="updateResistor2()">
+    <span id="value2"></span> Ω
+    <input type="range" id="resistorValue3" min="0" max="1000" value="250" oninput="updateResistor3()">
+    <span id="value3"></span> Ω
+    <h1>Resistor Example</h1>
+    <canvas id="resistorCanvas" width="500" height="500"></canvas>
+</body>
+</html>

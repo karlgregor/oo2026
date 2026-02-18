@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resistor Example</title>
+    <script src="02_resistor.js"></script>
+    <script>
+    let r1;
+
+    function startPage() {
+        console.log("Page loaded");
+
+        let canvas = document.getElementById("resistorCanvas");
+        let ctx = canvas.getContext("2d");
+        new Resistor1("250", ctx, 10, 250, 50)
+        new Resistor1("120", ctx, 10, 350, 150)
+        new Resistor1("80", ctx, 10, 450, 250)
+    }
+    </script>
+</head>
+<body onload="startPage()">
+    <h1>Resistor Example</h1>
+    <canvas id="resistorCanvas" width="500" height="500"></canvas>
+</body>
+</html>
