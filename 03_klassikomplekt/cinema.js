@@ -43,7 +43,7 @@ var Cinema = /** @class */ (function () {
     return Cinema;
 }());
 var cinema = new Cinema("Apollo Kino Plaza");
-var cinema2 = new Cinema("Apollo Kino Plaza");
+var cinema2 = new Cinema("Apollo Kino Mustamäe");
 var movie1 = new Movie("Avatar: Fire and Ash", 197);
 var movie2 = new Movie("Marty Supreme", 150);
 var movie3 = new Movie("Home Alone", 103);

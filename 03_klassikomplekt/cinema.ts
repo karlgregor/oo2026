@@ -62,7 +62,7 @@ class Cinema {
 }
 
 const cinema = new Cinema("Apollo Kino Plaza");
-const cinema2 = new Cinema("Apollo Kino Plaza");
+const cinema2 = new Cinema("Apollo Kino Mustamäe");
 
 const movie1 = new Movie("Avatar: Fire and Ash", 197);
 const movie2 = new Movie("Marty Supreme", 150);
