@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Temperature Converter</title>
+<script src="homework.js"></script>
+<script>
+    let calculators = [];
+
+    function startPage() {
+        calculators[0] = new CelsiusToFahrenheit();
+        calculators[1] = new FahrenheitToCelsius();
+        calculators[2] = new CelsiusToKelvin();
+        activateCalculator();
+    }
+
+    function activateCalculator() {
+        const select = document.getElementById("calculatorSelect");
+        const idx = select.selectedIndex;
+        const calc = calculators[idx];
+
+        document.getElementById("type1").innerText = calc.inputUnit();
+        document.getElementById("type2").innerText = calc.outputUnit();
+        document.getElementById("answer").innerText = "";
+    }
+
+    function calculate() {
+        const select = document.getElementById("calculatorSelect");
+        const idx = select.selectedIndex;
+        const calc = calculators[idx];
+
+        const number = document.getElementById("number").value;
+        const result = calc.calculate(Number(number));
+
+        document.getElementById("answer").innerText = result;
+    }
+</script>
+</head>
+<body onload="startPage()">
+    <h1>Temperature Converter</h1>
+
+    <input type="number" id="number" onchange="calculate()">
+    <span id="type1"></span>
+    <button onclick="calculate()">=</button>
+    <span id="answer"></span>
+    <span id="type2"></span>
+    <br><br>
+    <select id="calculatorSelect" onchange="activateCalculator()">
+        <option>Celsius → Fahrenheit</option>
+        <option>Fahrenheit → Celsius</option>
+        <option>Celsius → Kelvin</option>
+    </select>
+</body>
+</html>
