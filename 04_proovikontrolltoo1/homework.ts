@@ -80,9 +80,9 @@ function main(): void {
 
     // Animate function - clears the canvas, updates all cars, and redraws them in a loop using requestAnimationFrame.
     function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx!.clearRect(0, 0, canvas.width, canvas.height);
         manager.updateAll(canvas.width);
-        manager.drawAll(ctx);
+        manager.drawAll(ctx!);
         requestAnimationFrame(animate);
     }
 

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="02_calculator.js"></script>
+    <script>
+        let c1;
+
+        function startPage() {
+            c1 = new CmToInchConverter();
+
+            const type1 = document.getElementById("type1");
+            type1.innerHTML = c1.inputUnit();
+
+            const type2 = document.getElementById("type2");
+            type2.innerHTML = c1.outputUnit();
+
+        }
+
+        buttonClick = () => {
+            const number = document.getElementById("number").value;
+            const answer = document.getElementById("answer");
+            answer.innerHTML = c1.calculate(number);
+        }
+    </script>
+</head>
+<body onload="startPage()">
+    <h1>Calculator</h1>
+    <input type="number" id="number" placeholder="Number" onchange="buttonClick()">
+    <!-- This is to display the input unit -->
+    <span id="type1"></span>
+    <input type="button" value="=" id="submit" placeholder="=" onchange="buttonClick()">
+    <span id="answer"></span>
+    <span id="type2"></span>
+</body>
+</html>
