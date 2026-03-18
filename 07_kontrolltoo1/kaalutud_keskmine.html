@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="UTF-8">
+      <title>Weighted Mean</title>
+      <script src="kaalutud_keskmine.js"></script>
+   </head>
+   <script>
+      let gradeBook;
+      let canvas;
+      let ctx;
+
+      // Initializes the page by creating a new GradeBook and getting the canvas context
+      function startPage() {
+        gradeBook = new GradeBook();
+        canvas = document.getElementById("coursesCanvas");
+        ctx = canvas.getContext("2d");
+      }
+
+      // Adds a course to the grade book and renders the canvas
+      function addCourse() {
+        const grade = document.getElementById("grade").value;
+        const credits = Number(document.getElementById("credits").value);
+
+        // Tries to add the course to the grade book, in case of an error, shows an alert
+        try {
+          gradeBook.addCourse(grade, credits);
+          render();
+        } catch (e) {
+          alert(e.message);
+        }
+      }
+
+      // Renders the canvas with the grade book courses and weighted average
+      function render() {
+        const avg = gradeBook.getWeightedAverage();
+        document.getElementById("avg").textContent = avg.toFixed(2);
+
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+
+        let x = 10;
+
+        for (const c of gradeBook.courses) {
+          const height = c.getNumericGrade() * 40;
+          const width = c.credits * 40;
+          const y = canvas.height - height;
+
+          ctx.fillStyle = c.color;
+          ctx.fillRect(x,y,width,height);
+
+          ctx.fillStyle = "black";
+          ctx.font = "12px Arial";
+          ctx.fillText(c.grade.toUpperCase() + " (" + c.credits + " EAP)", x + 4, y - 5);
+          x += width + 10;
+        }
+      }
+   </script>
+   <body onload="startPage()">
+      <h2>Add course</h2>
+        <label>Grade (A-F)</label>
+        <input style="text-transform:uppercase" id="grade">
+        <label>Credits</label>
+        <input id="credits" type="number">
+        <button onclick="addCourse()">Add</button>
+      <h3>Weighted average: <span id="avg">0</span></h3>
+      <canvas id="coursesCanvas" width="800" height="250" style="border:1px solid black"></canvas>
+   </body>
+</html>
