@@ -11,9 +11,9 @@ var Course = /** @class */ (function () {
         if (credits <= 0) {
             throw new Error("Credits must be greater than 0.");
         }
-        this.grade = grade;
+        this.grade = grade.toUpperCase();
         this.credits = credits;
-        this.color = "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0");
+        this.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
     }
     // Converts the letter grade to a numeric value
     Course.prototype.getNumericGrade = function () {
@@ -23,7 +23,7 @@ var Course = /** @class */ (function () {
             C: 3,
             D: 2,
             E: 1,
-            F: 0,
+            F: 1,
         };
         return map[this.grade.toUpperCase()];
     };
@@ -67,7 +67,7 @@ function weightedAverageTwo(grade1, credits1, grade2, credits2) {
         C: 3,
         D: 2,
         E: 1,
-        F: 0,
+        F: 1,
     };
     // Convert the letter grades to numeric values
     var g1 = map[grade1.toUpperCase()];
@@ -75,3 +75,11 @@ function weightedAverageTwo(grade1, credits1, grade2, credits2) {
     // Calculate the weighted average
     return (g1 * credits1 + g2 * credits2) / (credits1 + credits2);
 }
+/*
+const gradeBook = new GradeBook();
+gradeBook.addCourse("A", 6);
+gradeBook.addCourse("B", 3);
+console.log(gradeBook.getWeightedAverage());
+
+console.log(weightedAverageTwo("A", 6, "B", 3));
+*/
