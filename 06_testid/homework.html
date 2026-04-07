@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task manager</title>
+    <script src="homework.js"></script>
+    <script>
+        let manager = null;
+
+        function startPage() {
+            manager = new TaskManager();
+            updateView();
+        }
+
+        function addTask() {
+            const input = document.getElementById("taskInput");
+            manager.addTask(input.value);
+            input.value = "";
+            updateView();
+        }
+
+        function toggleTask(index) {
+            manager.toggleTaskDone(index);
+            updateView();
+        }
+
+        function removeTask(index) {
+            manager.removeTask(index);
+            updateView();
+        }
+
+        function updateView() {
+            const taskList = document.getElementById("taskList");
+            const completedInfo = document.getElementById("completedInfo");
+
+            taskList.innerHTML = "";
+
+            const tasks = manager.getTasks();
+
+            for (let i = 0; i < tasks.length; i++) {
+                const li = document.createElement("li");
+
+                const textSpan = document.createElement("span");
+                textSpan.innerText = tasks[i];
+                textSpan.style.marginRight = "10px";
+
+                const doneButton = document.createElement("button");
+                doneButton.innerText = "Done / Undo";
+                doneButton.onclick = function() {
+                    toggleTask(i);
+                };
+
+                const removeButton = document.createElement("button");
+                removeButton.innerText = "Delete";
+                removeButton.onclick = function() {
+                    removeTask(i);
+                };
+
+                li.appendChild(textSpan);
+                li.appendChild(doneButton);
+                li.appendChild(removeButton);
+
+                taskList.appendChild(li);
+            }
+
+            completedInfo.innerText = "Completed tasks: " + manager.getCompletedCount();
+        }
+    </script>
+</head>
+<body onload="startPage()">
+    <div class="box">
+        <h1>Task manager</h1>
+
+        <input id="taskInput" type="text" placeholder="Enter new task">
+        <button onclick="addTask()">Add</button>
+
+        <p id="completedInfo">Completed tasks: 0</p>
+
+        <ul id="taskList"></ul>
+    </div>
+</body>
+</html>
