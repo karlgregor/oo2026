@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Calorie Calculator</title>
+    <script src="02_homework.js"></script>
+    <script>
+        let workout = null;
+
+        function startPage() {
+            document.getElementById("output").innerText = "No workout has been started yet.";
+        }
+
+        function startWorkout() {
+            const weight = document.getElementById("weightInput").valueAsNumber;
+            const intensity = document.getElementById("intensityInput").valueAsNumber;
+            const duration = document.getElementById("durationInput").valueAsNumber;
+
+            if (isNaN(weight) || isNaN(intensity) || isNaN(duration)) {
+                document.getElementById("output").innerText = "Please fill in all fields.";
+                return;
+            }
+
+            if (weight <= 0 || intensity <= 0 || duration <= 0) {
+                document.getElementById("output").innerText = "All values must be greater than 0.";
+                return;
+            }
+
+            workout = new Workout(weight, intensity, duration);
+
+            document.getElementById("output").innerText =
+                `Workout started. Weight: ${weight} kg, intensity: ${intensity}, duration: ${duration} minutes.`;
+        }
+
+        function trainMinutes() {
+            if (!workout) {
+                document.getElementById("output").innerText = "Please start the workout first.";
+                return;
+            }
+
+            const minutes = document.getElementById("minutesInput").valueAsNumber;
+
+            if (isNaN(minutes) || minutes <= 0) {
+                document.getElementById("output").innerText = "Please enter a valid number of minutes.";
+                return;
+            }
+
+            if (workout.isFinished()) {
+                document.getElementById("output").innerText =
+                    `Workout is already finished. Total calories burned: ${workout.getCaloriesBurned().toFixed(2)} kcal.`;
+                return;
+            }
+
+            workout.train(minutes);
+
+            document.getElementById("output").innerText =
+                `You trained for ${minutes} minute(s). ` +
+                `Completed: ${workout.getMinutesDone()} min. ` +
+                `Calories burned: ${workout.getCaloriesBurned().toFixed(2)} kcal. ` +
+                `Time left: ${workout.getMinutesLeft()} min.`;
+        }
+
+        function showSummary() {
+            if (!workout) {
+                document.getElementById("output").innerText = "Please start the workout first.";
+                return;
+            }
+
+            document.getElementById("output").innerText =
+                `Completed: ${workout.getMinutesDone()} min. ` +
+                `Calories burned: ${workout.getCaloriesBurned().toFixed(2)} kcal. ` +
+                `Progress: ${workout.getProgress().toFixed(2)}%. ` +
+                `${workout.getStatus()}`;
+        }
+    </script>
+</head>
+<body onload="startPage()">
+    <h1>Workout Calorie Calculator</h1>
+
+    <label>Weight (kg): </label>
+    <input type="number" id="weightInput"><br><br>
+
+    <label>Intensity (1-10): </label>
+    <input type="number" id="intensityInput" min="1" max="10"><br><br>
+
+    <label>Total workout duration (minutes): </label>
+    <input type="number" id="durationInput"><br><br>
+
+    <button onclick="startWorkout()">Start Workout</button><br><br>
+
+    <label>How many minutes would you like to train now?</label>
+    <input type="number" id="minutesInput"><br><br>
+
+    <button onclick="trainMinutes()">Train</button><br><br>
+    <button onclick="showSummary()">Show Summary</button><br><br>
+
+    <h2 id="output"></h2>
+</body>
+</html>
