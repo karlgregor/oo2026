@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature and Energy simulation</title>
+    <script src="simulation.js"></script>
+    <script>
+        let materials = {
+            water: null,
+            iron: null,
+            room: null
+        };
+
+        function startPage() {
+            document.getElementById("output").innerText = "No materials have been added yet.";
+        }
+
+        function addWater() {
+            const mass = document.getElementById("waterMass").valueAsNumber;
+            const specificHeatCapacity = document.getElementById("waterShc").valueAsNumber;
+            const temperature = document.getElementById("waterTemp").valueAsNumber;
+
+            if (isNaN(mass) || isNaN(specificHeatCapacity) || isNaN(temperature)) {
+                document.getElementById("output").innerText = "Please fill in all water fields.";
+                return;
+            }
+
+            if (mass <= 0 || specificHeatCapacity <= 0) {
+                document.getElementById("output").innerText = "Water mass and specific heat capacity must be greater than 0.";
+                return;
+            }
+
+            materials.water = new MaterialAmount(mass, specificHeatCapacity, temperature);
+
+            document.getElementById("output").innerText =
+                `Water added.\nMass: ${mass} kg\nSpecific heat capacity: ${specificHeatCapacity}\nTemperature: ${temperature} °C`;
+        }
+
+        function addIron() {
+            const mass = document.getElementById("ironMass").valueAsNumber;
+            const specificHeatCapacity = document.getElementById("ironShc").valueAsNumber;
+            const temperature = document.getElementById("ironTemp").valueAsNumber;
+
+            if (isNaN(mass) || isNaN(specificHeatCapacity) || isNaN(temperature)) {
+                document.getElementById("output").innerText = "Please fill in all iron fields.";
+                return;
+            }
+
+            if (mass <= 0 || specificHeatCapacity <= 0) {
+                document.getElementById("output").innerText = "Iron mass and specific heat capacity must be greater than 0.";
+                return;
+            }
+
+            materials.iron = new MaterialAmount(mass, specificHeatCapacity, temperature);
+
+            document.getElementById("output").innerText =
+                `Iron added.\nMass: ${mass} kg\nSpecific heat capacity: ${specificHeatCapacity}\nTemperature: ${temperature} °C`;
+        }
+
+        function addAirInRoom() {
+            const length = document.getElementById("airRoomLength").valueAsNumber;
+            const width = document.getElementById("airRoomWidth").valueAsNumber;
+            const height = document.getElementById("airRoomHeight").valueAsNumber;
+            const temperature = document.getElementById("airTemp").valueAsNumber;
+
+            if (isNaN(length) || isNaN(width) || isNaN(height) || isNaN(temperature)) {
+                document.getElementById("output").innerText = "Please fill in all room air fields.";
+                return;
+            }
+
+            if (length <= 0 || width <= 0 || height <= 0) {
+                document.getElementById("output").innerText = "Room dimensions must be greater than 0.";
+                return;
+            }
+
+            materials.room = new AirAmount(length, width, height, temperature);
+
+            document.getElementById("output").innerText =
+                `Air in room added.\nMass: ${materials.room.mass.toFixed(2)} kg\nTemperature: ${temperature} °C`;
+        }
+
+        function getSelectedMaterial(selectId) {
+            const selected = document.getElementById(selectId).value;
+
+            if (selected === "water") {
+                return materials.water;
+            } else if (selected === "iron") {
+                return materials.iron;
+            } else if (selected === "room") {
+                return materials.room;
+            }
+
+            return null;
+        }
+
+        function getSelectedMaterialName(selectId) {
+            return document.getElementById(selectId).value;
+        }
+
+        function addEnergy() {
+            const energy = document.getElementById("addEnergyAmount").valueAsNumber;
+            const material = getSelectedMaterial("addMaterialSelect");
+            const materialName = getSelectedMaterialName("addMaterialSelect");
+
+            if (isNaN(energy)) {
+                document.getElementById("output").innerText = "Please enter a valid energy amount.";
+                return;
+            }
+
+            if (!material) {
+                document.getElementById("output").innerText = "Please choose a material that has been added.";
+                return;
+            }
+
+            material.changeEnergy(energy);
+
+            document.getElementById("output").innerText =
+                `${energy} J added to ${materialName}.\nNew temperature: ${material.getTemperature().toFixed(2)} °C`;
+        }
+
+        function removeEnergy() {
+            const energy = document.getElementById("removeEnergyAmount").valueAsNumber;
+            const material = getSelectedMaterial("removeMaterialSelect");
+            const materialName = getSelectedMaterialName("removeMaterialSelect");
+
+            if (isNaN(energy)) {
+                document.getElementById("output").innerText = "Please enter a valid energy amount.";
+                return;
+            }
+
+            if (!material) {
+                document.getElementById("output").innerText = "Please choose a material that has been added.";
+                return;
+            }
+
+            material.changeEnergy(-energy);
+
+            document.getElementById("output").innerText =
+                `${energy} J removed from ${materialName}.\nNew temperature: ${material.getTemperature().toFixed(2)} °C`;
+        }
+
+        function transferEnergy() {
+            const energy = document.getElementById("transferEnergyAmount").valueAsNumber;
+            const fromMaterial = getSelectedMaterial("transferMaterialsFromSelect");
+            const toMaterial = getSelectedMaterial("transferMaterialsTo");
+            const fromName = getSelectedMaterialName("transferMaterialsFromSelect");
+            const toName = getSelectedMaterialName("transferMaterialsTo");
+
+            if (isNaN(energy)) {
+                document.getElementById("output").innerText = "Please enter a valid energy amount.";
+                return;
+            }
+
+            if (!fromMaterial || !toMaterial) {
+                document.getElementById("output").innerText = "Please choose both materials and make sure they are added.";
+                return;
+            }
+
+            if (fromName === toName) {
+                document.getElementById("output").innerText = "Please choose two different materials.";
+                return;
+            }
+
+            fromMaterial.changeEnergy(-energy);
+            toMaterial.changeEnergy(energy);
+
+            document.getElementById("output").innerText =
+                `${energy} J transferred from ${fromName} to ${toName}.\n` +
+                `${fromName} temperature: ${fromMaterial.getTemperature().toFixed(2)} °C\n` +
+                `${toName} temperature: ${toMaterial.getTemperature().toFixed(2)} °C`;
+        }
+
+        function showEqualTemperature() {
+            if (!materials.water || !materials.iron || !materials.room) {
+                document.getElementById("output").innerText =
+                    "Please add water, iron, and air first.";
+                return;
+            }
+
+            const equalTemperature = CalculateEqualTemperature([
+                materials.water,
+                materials.iron,
+                materials.room
+            ]);
+
+            document.getElementById("output").innerText =
+                "Equal temperature: " + equalTemperature.toFixed(4) + " °C";
+        }
+    </script>
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    div {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 16px;
+      padding: 10px 16px;
+      cursor: pointer;
+    }
+
+    #output {
+      white-space: pre-line;
+      background: #f5f5f5;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body onload="startPage()">
+    <h1>Temperature and Energy simulation</h1>
+
+    <div>
+        <h2>Water</h1>
+        <label>Mass (kg)
+            <input id="waterMass" type="number" value="3" step="any" />
+        </label>
+        <label>Specific heat capacity
+            <input id="waterShc" type="number" value="4200" step="any" />
+        </label>
+        <label>Initial temperature (°C)
+            <input id="waterTemp" type="number" value="20" step="any" />
+        </label>
+        <button onclick="addWater()" id="addWater">Add Water</button>
+    </div>
+
+    <div>
+        <h2>Iron</h1>
+        <label>Mass (kg)
+            <input id="ironMass" type="number" value="10" step="any" />
+        </label>
+        <label>Specific heat capacity
+            <input id="ironShc" type="number" value="412" step="any" />
+        </label>
+        <label>Initial temperature (°C)
+            <input id="ironTemp" type="number" value="20" step="any" />
+        </label>
+        <button onclick="addIron()" id="addIron">Add Iron</button>
+    </div>
+
+    <div>
+        <h2>Air in room</h1>
+        <label>Length (m)
+            <input id="airRoomLength" type="number" value="5" step="any" />
+        </label>
+        <label>Width (m)
+            <input id="airRoomWidth" type="number" value="5" step="any" />
+        </label>
+        <label>Height (m)
+            <input id="airRoomHeight" type="number" value="5" step="any" />
+        </label>
+        <label>Temperature (°C)
+            <input id="airTemp" type="number" value="21" step="any" />
+        </label>
+        <button onclick="addAirInRoom()" id="addAirInRoom">Add Air In Room</button>
+    </div>
+
+    <div>
+        <h2>Add / Remove / Transfer energy</h1>
+        <div>
+            Add
+            <input id="addEnergyAmount" type="number" value="10000" step="any" />
+            to
+            <select name="addMaterials" id="addMaterialSelect">
+                <option value="">--Please choose an option--</option>
+                <option value="water">Water</option>
+                <option value="iron">Iron</option>
+                <option value="room">Room</option>
+            </select>
+            <button onclick="addEnergy()" id="addEnergyBtn">Calculate</button>
+        </div>
+        <div>
+            Remove
+            <input id="removeEnergyAmount" type="number" value="10000" step="any" />
+            from
+            <select name="removeMaterials" id="removeMaterialSelect">
+                <option value="">--Please choose an option--</option>
+                <option value="water">Water</option>
+                <option value="iron">Iron</option>
+                <option value="room">Room</option>
+            </select>
+            <button onclick="removeEnergy()" id="removeEnergyBtn">Calculate</button>
+        </div>
+        <div>
+            Transfer
+            <input id="transferEnergyAmount" type="number" value="10000" step="any" />
+            from
+            <select name="transferMaterialsFrom" id="transferMaterialsFromSelect">
+                <option value="">--Please choose an option--</option>
+                <option value="water">Water</option>
+                <option value="iron">Iron</option>
+                <option value="room">Room</option>
+            </select>
+            to
+            <select name="transferMaterialsTo" id="transferMaterialsTo">
+                <option value="">--Please choose an option--</option>
+                <option value="water">Water</option>
+                <option value="iron">Iron</option>
+                <option value="room">Room</option>
+            </select>
+            <button onclick="transferEnergy()" id="transferEnergyBtn">Calculate</button>
+        </div>
+        <div>
+            <button onclick="showEqualTemperature()">Calculate equal temperature</button>
+        </div>
+    </div>
+
+    <div id="output">Results will appear here.</div>
+</body>
+</html>
