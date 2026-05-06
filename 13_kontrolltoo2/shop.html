@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Selector</title>
+    <script src="shop.js"></script>
+    <script>
+        let chainmanagement;
+
+        function startPage() {
+            chainmanagement = new StoreChainManagement();
+            document.getElementById("output").innerText = "";
+        }
+
+        function addChain() {
+            const chainName = document.getElementById("chainName").value.trim();
+
+            if (!chainName) {
+                outputDialog("Enter chain name.");
+                return;
+            }
+
+            chainmanagement.addChain(new StoreChain(chainName));
+            outputDialog("Chain " + chainName + " added!");
+        }
+
+        function addShop() {
+            const chainName = document.getElementById("shopChain").value.trim();
+            const shopName = document.getElementById("shopName").value.trim();
+            const openingHour = Number(document.getElementById("open").value);
+            const closingHour = Number(document.getElementById("close").value);
+
+            if (!chainName || !shopName || isNaN(openingHour) || isNaN(closingHour)) {
+                outputDialog("Fill all shop fields correctly.");
+                return;
+            }
+
+            const chain = chainmanagement.chains.find(c => c.name === chainName);
+
+            if (!chain) {
+                outputDialog("Chain " + chainName + " not found!");
+                return;
+            }
+
+            chain.addShop(new Shop(shopName, chainName, openingHour, closingHour));
+            outputDialog("Shop " + shopName + " added to chain " + chainName + "!");
+        }
+
+        function showOpenShops() {
+            const hour = Number(document.getElementById("hour").value);
+
+            if (isNaN(hour)) {
+                outputDialog("Enter a valid hour.");
+                return;
+            }
+
+            const shops = chainmanagement.getAllOpenShops(hour);
+
+            if (shops.length === 0) {
+                outputDialog("No open shops available!");
+                return;
+            }
+
+            let openShopsText = "Open shops at " + hour + ":00\n";
+            for (const shop of shops) {
+                openShopsText += shop.name + "\n";
+            }
+
+            outputDialog(openShopsText);
+        }
+
+        function visitOpenShop() {
+            const name = document.getElementById("visitName").value.trim();
+            const hour = Number(document.getElementById("visitHour").value);
+
+            if (!name || isNaN(hour)) {
+                outputDialog("Enter shop name and valid hour.");
+                return;
+            }
+
+            const success = chainmanagement.visitOpenShop(name, hour);
+
+            if (success) {
+                outputDialog("Shop visited!");
+                return;
+            } else {
+                outputDialog("Shop not found or closed.");
+                return;
+            }
+        }
+
+        function visitAllOpenShops() {
+            const hour = Number(document.getElementById("visitAllHour").value); // FIXED ID
+
+            if (isNaN(hour)) {
+                outputDialog("Enter a valid hour.");
+                return;
+            }
+
+            chainmanagement.visitAllOpenShops(hour);
+            outputDialog("Open shops visited!");
+        }
+
+        function showStats() {
+            let text = "";
+
+            for (const chain of chainmanagement.chains) {
+                text += chain.name + " | " + chain.getShopVisits() + " visits\n";
+
+                for (const shop of chain.shops) {
+                    text += "  - " + shop.name + ": " + shop.visits + "\n";
+                }
+            }
+
+            outputDialog(text || "No data available.");
+        }
+
+        function outputDialog(message) {
+            document.getElementById("output").innerText = message;
+        }
+    </script>
+  </head>
+  <body onload="startPage()">
+    <div>
+        <h3>Add Chain</h3>
+        <input id="chainName" placeholder="Chain name">
+        <button onclick="addChain()">Add</button>
+    </div>
+
+    <div>
+      <h3>Add Shop</h3>
+      <input id="shopChain" placeholder="Chain name">
+      <input id="shopName" placeholder="Shop name">
+      <input id="open" type="number" placeholder="Opening hour">
+      <input id="close" type="number" placeholder="Closing hour">
+      <button onclick="addShop()">Add Shop</button>
+    </div>
+
+    <div>
+      <h3>Check open shops</h3>
+      <input id="hour" type="number" placeholder="Hour">
+      <button onclick="showOpenShops()">Check</button>
+    </div>
+
+    <div>
+      <h3>Visit Open Shop</h3>
+      <input id="visitName" placeholder="Shop name">
+      <input id="visitHour" type="number" placeholder="Hour">
+      <button onclick="visitOpenShop()">Visit</button>
+    </div>
+
+    <div>
+      <h3>Visit All Open Shop</h3>
+      <input id="visitAllHour" type="number" placeholder="Hour">
+      <button onclick="visitAllOpenShops()">Visit</button>
+    </div>
+
+    <div>
+      <h3>Statistics</h3>
+      <button onclick="showStats()">Show</button>
+    </div>
+
+    <div id="output"></div>
+  </body>
+</html>

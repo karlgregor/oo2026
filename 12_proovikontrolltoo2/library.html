@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library</title>
+    <script src="library.js"></script>
+    <script>
+        const library = new LibraryManagement();
+
+        function startPage() {
+            renderLibrary();
+        }
+
+        function getInputValue(id) {
+            return document.getElementById(id).value;
+        }
+
+        function setOutput(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = text;
+        }
+
+        function renderLibrary() {
+            const output = document.getElementById("libraryOutput");
+
+            const items = library.listItems();
+
+            if (items.length === 0) {
+                output.innerHTML = "<p>No items in library.</p>";
+                return;
+            }
+
+            output.innerHTML = "";
+
+            for (const item of items) {
+                const div = document.createElement("div");
+
+                div.innerHTML = `
+                    <p>${item.getSummary()}</p>
+                    <button onclick="removeLibraryItem('${item.getId()}')">Remove</button>
+                    <hr>
+                `;
+
+                output.appendChild(div);
+            }
+        }
+
+        function addItemToLibrary() {
+            try {
+                const selected = getInputValue("addItemToLibrarySelect");
+                const id = crypto.randomUUID();
+
+            if (selected === "DVDoption") {
+                const director = getInputValue("dvdAuthor");
+                const title = getInputValue("dvdTitle");
+                const year = Number(getInputValue("dvdYear"));
+                const duration = Number(getInputValue("dvdDuration"));
+
+                const dvd = new DVD(id, title, director, year, duration);
+                library.addItem(dvd);
+
+                setOutput("addDialogOutput", "DVD added");
+            }
+
+            if (selected === "BOOKoption") {
+                const author = getInputValue("bookAuthor");
+                const title = getInputValue("bookTitle");
+                const year = Number(getInputValue("bookYear"));
+                const pages = Number(getInputValue("bookPages"));
+                const isbn = getInputValue("bookISBN");
+
+                const book = new Book(id, title, author, year, pages, isbn);
+                library.addItem(book);
+
+                setOutput("addDialogOutput", "Book added");
+            }
+                renderLibrary();
+            } catch (e) {
+                setOutput("addDialogOutput", "Error adding item");
+            }
+        }
+
+        function toggleInputs() {
+            const selected = document.getElementById("addItemToLibrarySelect").value;
+
+            const dvd = document.getElementById("dvdInputs");
+            const book = document.getElementById("bookInputs");
+
+            if (selected === "DVDoption") {
+                dvd.style.display = "block";
+                book.style.display = "none";
+            } else {
+                dvd.style.display = "none";
+                book.style.display = "block";
+            }
+
+        }
+
+        function removeLibraryItem(id) {
+            library.removeItem(id);
+            renderLibrary();
+        }
+
+        function exportLibrary() {
+            const exportTextbox = document.getElementById("exportText");
+            const json = library.exportJson();
+
+            exportTextbox.innerText = json;
+        }
+
+        function importLibrary() {
+            const text = document.getElementById("importText").value;
+            library.importJson(text);
+            renderLibrary();
+        }
+    </script>
+    <style>
+        body {
+            text-align: center;
+        }
+
+        .wrapper {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .wrapper > div:first-child {
+            grid-column: span 2;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body onload="startPage(); toggleInputs();">
+    <h1>Library Management</h1>
+
+    <div class="wrapper">
+        <div>
+            <h2>Library Overview</h2>
+            <div id="libraryOutput"></div>
+        </div>
+
+        <div>
+            <h2>Add item to library</h2>
+            <select id="addItemToLibrarySelect" onchange="toggleInputs()">
+                <option value="DVDoption">DVD</option>
+                <option value="BOOKoption">Book</option>
+            </select>
+
+            <div id="dvdInputs">
+            <label>
+                Director
+                <input id="dvdAuthor" type="text">
+            </label>
+            <label>
+                Title
+                <input id="dvdTitle" type="text">
+            </label>
+            <label>
+                Year
+                <input id="dvdYear" type="number">
+            </label>
+            <label>
+                Duration
+                <input id="dvdDuration" type="number">
+            </label>
+            </div>
+
+            <div id="bookInputs">
+            <label>
+                Author
+                <input id="bookAuthor" type="text">
+            </label>
+            <label>
+                Title
+                <input id="bookTitle" type="text">
+            </label>
+            <label>
+                Year
+                <input id="bookYear" type="number">
+            </label>
+            <label>
+                ISBN
+                <input id="bookISBN" type="text">
+            </label>
+            <label>
+                Pages
+                <input id="bookPages" type="number">
+            </label>
+            </div>
+
+            <button onclick="addItemToLibrary()">Add item</button>
+            <div id="addDialogOutput"></div>
+        </div>
+
+        <div>
+            <h2>Export / Import Library</h2>
+            <label>
+                Export JSON
+                <textarea id="exportText" readonly rows="3"></textarea>
+            </label>
+            <button onclick="exportLibrary()">Export Library</button>
+            <label>
+                Import JSON
+                <textarea id="importText" rows="3"></textarea>
+            </label>
+            <button onclick="importLibrary()">Import Library</button>
+        </div>
+    </div>
+</body>
+</html>
