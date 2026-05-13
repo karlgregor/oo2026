@@ -84,7 +84,30 @@ var LibraryManagement = /** @class */ (function () {
         }
     };
     LibraryManagement.prototype.exportJson = function () {
-        return JSON.stringify(this.items, null, 2);
+        var data = this.items.map(function (item) {
+            if (item instanceof Book) {
+                return {
+                    type: "book",
+                    id: item.id,
+                    title: item.title,
+                    author: item.author,
+                    year: item.year,
+                    pages: item.pages,
+                    ISBN: item.ISBN
+                };
+            }
+            if (item instanceof DVD) {
+                return {
+                    type: "dvd",
+                    id: item.id,
+                    title: item.title,
+                    author: item.author,
+                    year: item.year,
+                    duration: item.duration
+                };
+            }
+        });
+        return JSON.stringify(data, null, 2);
     };
     LibraryManagement.prototype.importJson = function (json) {
         try {
@@ -106,6 +129,41 @@ var LibraryManagement = /** @class */ (function () {
         }
         catch (error) {
             console.log("Invalid JSON file");
+        }
+    };
+    LibraryManagement.prototype.importText = function (text) {
+        try {
+            var lines = text
+                .split("\n")
+                .map(function (line) { return line.trim(); })
+                .filter(function (line) { return line !== ""; });
+            this.items = [];
+            for (var _i = 0, lines_1 = lines; _i < lines_1.length; _i++) {
+                var line = lines_1[_i];
+                var parts = line.split("|");
+                var type = parts[0];
+                if (type === "BOOK") {
+                    var id = parts[1];
+                    var title = parts[2];
+                    var author = parts[3];
+                    var year = Number(parts[4]);
+                    var pages = Number(parts[5]);
+                    var ISBN = parts[6];
+                    this.items.push(new Book(id, title, author, year, pages, ISBN));
+                }
+                if (type === "DVD") {
+                    var id = parts[1];
+                    var title = parts[2];
+                    var author = parts[3];
+                    var year = Number(parts[4]);
+                    var duration = Number(parts[5]);
+                    this.items.push(new DVD(id, title, author, year, duration));
+                }
+            }
+            this.saveToLocalStorage();
+        }
+        catch (error) {
+            console.log("Invalid text import");
         }
     };
     LibraryManagement.prototype.saveToLocalStorage = function () {

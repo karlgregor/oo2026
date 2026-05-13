@@ -88,8 +88,33 @@ class LibraryManagement {
     }
 
     exportJson(): string {
-        return JSON.stringify(this.items, null, 2);
-    }
+    const data = this.items.map(item => {
+        if (item instanceof Book) {
+            return {
+                type: "book",
+                id: item.id,
+                title: item.title,
+                author: item.author,
+                year: item.year,
+                pages: item.pages,
+                ISBN: item.ISBN
+            };
+        }
+
+        if (item instanceof DVD) {
+            return {
+                type: "dvd",
+                id: item.id,
+                title: item.title,
+                author: item.author,
+                year: item.year,
+                duration: item.duration
+            };
+        }
+    });
+
+    return JSON.stringify(data, null, 2);
+}
 
     importJson(json: string): void {
         try {
@@ -118,6 +143,52 @@ class LibraryManagement {
             console.log("Invalid JSON file");
         }
     }
+
+    importText(text: string): void {
+    try {
+        const lines = text
+            .split("\n")
+            .map(line => line.trim())
+            .filter(line => line !== "");
+
+        this.items = [];
+
+        for (const line of lines) {
+            const parts = line.split("|");
+
+            const type = parts[0];
+
+            if (type === "BOOK") {
+                const id = parts[1];
+                const title = parts[2];
+                const author = parts[3];
+                const year = Number(parts[4]);
+                const pages = Number(parts[5]);
+                const ISBN = parts[6];
+
+                this.items.push(
+                    new Book(id, title, author, year, pages, ISBN)
+                );
+            }
+
+            if (type === "DVD") {
+                const id = parts[1];
+                const title = parts[2];
+                const author = parts[3];
+                const year = Number(parts[4]);
+                const duration = Number(parts[5]);
+
+                this.items.push(
+                    new DVD(id, title, author, year, duration)
+                );
+            }
+        }
+
+        this.saveToLocalStorage();
+    } catch (error) {
+        console.log("Invalid text import");
+    }
+}
 
     private saveToLocalStorage(): void {
         const data = this.items.map(item => {
