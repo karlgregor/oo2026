@@ -1,4 +1,4 @@
-class LibraryItem {
+export class LibraryItem {
     id: string;
     title: string;
     author: string;
@@ -21,7 +21,7 @@ class LibraryItem {
 
 }
 
-class Book extends LibraryItem {
+export class Book extends LibraryItem {
     pages: number;
     ISBN: string;
 
@@ -39,7 +39,7 @@ class Book extends LibraryItem {
     }
 }
 
-class DVD extends LibraryItem {
+export class DVD extends LibraryItem {
     duration: number;
 
     constructor(id: string, title: string, author: string, year: number, duration: number) {
@@ -53,7 +53,7 @@ class DVD extends LibraryItem {
     }
 }
 
-class LibraryManagement {
+export class LibraryManagement {
     private items: LibraryItem[] = [];
 
     constructor() {

@@ -103,10 +103,23 @@
         }
 
         function exportLibrary() {
-            const exportTextbox = document.getElementById("exportText");
             const json = library.exportJson();
 
-            exportTextbox.value = json;
+            const blob = new Blob([json], {
+                type: "application/json"
+            });
+
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "library.json";
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            URL.revokeObjectURL(url);
         }
 
         function importLibrary() {
@@ -212,9 +225,6 @@
         <div>
             <h2>Export / Import Library</h2>
 
-            <label for="exportText">Export JSON</label>
-            <textarea id="exportText" readonly rows="6" cols="80"></textarea>
-            <br>
             <button onclick="exportLibrary()">Export Library</button>
 
             <hr>
