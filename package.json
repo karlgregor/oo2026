@@ -20,8 +20,8 @@
   "homepage": "https://github.com/karlgregor/oo2026#readme",
   "devDependencies": {
     "@types/jest": "^30.0.0",
-    "jest": "^30.3.0",
-    "ts-jest": "^29.4.6",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.11",
     "typescript": "^5.9.3"
   }
 }

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="et">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Salme viikingite mäng</title>
+    <script src="exam_game.js"></script>
+
+    <script>
+        let player;
+        let questionBank;
+        let quizMission;
+        let choiceMission;
+        let game;
+
+        function startGame() {
+            let name = document.getElementById("playerName").value;
+
+            try {
+                player = new Player(name);
+                questionBank = new QuestionBank();
+
+                let q1 = new Question(
+                    "Milleks kasutati Salme laevu?",
+                    ["Autode veoks", "Meresõiduks ja sõjaretkedeks", "Lennukite ehitamiseks"],
+                    1,
+                    "easy"
+                );
+
+                let q2 = new Question(
+                    "Mis materjalist olid viikingilaevad enamasti tehtud?",
+                    ["Puidust", "Plastikust", "Betoonist"],
+                    0,
+                    "medium"
+                );
+
+                let q3 = new Question(
+                    "Miks oli laeva tasakaal oluline?",
+                    ["Et laev ei läheks ümber", "Et laev oleks ilusam", "Et laev oleks aeglasem"],
+                    0,
+                    "hard"
+                );
+
+                questionBank.addQuestion(q1);
+                questionBank.addQuestion(q2);
+                questionBank.addQuestion(q3);
+
+                quizMission = new QuizMission(
+                    "Salme viikingite viktoriin",
+                    player,
+                    questionBank.getQuestions()
+                );
+
+                choiceMission = new ChoiceMission(
+                    "Vali õige meretee",
+                    player,
+                    "Milline meretee viib viikingid õigesse suunda?",
+                    ["põhi", "lõuna", "lääs", "ida"],
+                    "põhi"
+                );
+
+                game = new Game(player);
+
+                game.addMission(quizMission);
+                game.addMission(choiceMission);
+
+                quizMission.start();
+
+                document.getElementById("startScreen").style.display = "none";
+                document.getElementById("gameScreen").style.display = "block";
+
+                document.getElementById("log").innerHTML = "<p>Mäng algas.</p>";
+
+                showQuizQuestion();
+                showStats();
+
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        function showQuizQuestion() {
+            showStats();
+
+            if (quizMission.isCompleted()) {
+                if (player.isAlive()) {
+                    showChoiceMission();
+                } else {
+                    document.getElementById("missionTitle").innerText = "Mäng läbi";
+                    document.getElementById("questionText").innerText = "Sul said elud otsa.";
+                    document.getElementById("answers").innerHTML = "";
+                    document.getElementById("log").innerHTML += "<p>Mäng läbi.</p>";
+                }
+
+                return;
+            }
+
+            let questions = questionBank.getQuestions();
+            let question = questions[quizMission.currentQuestion];
+
+            document.getElementById("missionTitle").innerText = quizMission.getTitle();
+            document.getElementById("questionText").innerText = question.getText();
+
+            let answersDiv = document.getElementById("answers");
+            answersDiv.innerHTML = "";
+
+            let answers = question.getAnswers();
+
+            for (let i = 0; i < answers.length; i++) {
+                answersDiv.innerHTML +=
+                    "<button onclick='answerQuestion(" + i + ")'>" +
+                    answers[i] +
+                    "</button><br>";
+            }
+        }
+
+        function answerQuestion(answerIndex) {
+            let questions = questionBank.getQuestions();
+            let question = questions[quizMission.currentQuestion];
+
+            let correct = quizMission.answer(answerIndex);
+
+            if (correct) {
+                let points = ScoreCalculator.getDifficultyPoints(question.getDifficulty());
+
+                document.getElementById("log").innerHTML +=
+                    "<p>Õige vastus! Teenisid " + points + " punkti.</p>";
+            } else {
+                document.getElementById("log").innerHTML +=
+                    "<p>Vale vastus! Kaotasid ühe elu.</p>";
+            }
+
+            showQuizQuestion();
+        }
+
+        function showChoiceMission() {
+            choiceMission.start();
+
+            document.getElementById("missionTitle").innerText = choiceMission.getTitle();
+            document.getElementById("questionText").innerText = choiceMission.getQuestionText();
+
+            let answersDiv = document.getElementById("answers");
+            answersDiv.innerHTML = "";
+
+            let choices = choiceMission.getChoices();
+
+            for (let i = 0; i < choices.length; i++) {
+                answersDiv.innerHTML +=
+                    "<button onclick='chooseRoute(\"" + choices[i] + "\")'>" +
+                    choices[i] +
+                    "</button><br>";
+            }
+        }
+
+        function chooseRoute(choice) {
+            let correct = choiceMission.choose(choice);
+
+            if (correct) {
+                document.getElementById("log").innerHTML +=
+                    "<p>Õige meretee!</p>";
+            } else {
+                document.getElementById("log").innerHTML +=
+                    "<p>Vale meretee! Kaotasid ühe elu.</p>";
+            }
+
+            document.getElementById("missionTitle").innerText = "Mäng läbi";
+            document.getElementById("questionText").innerText = "Kõik missioonid on läbitud!";
+            document.getElementById("answers").innerHTML = "";
+
+            showStats();
+        }
+
+        function showStats() {
+            document.getElementById("stats").innerHTML =
+                "Mängija: <b>" + player.getName() + "</b><br>" +
+                "Skoor: <b>" + player.getScore() + "</b><br>" +
+                "Elud: <b>" + player.getLives() + "</b><br>" +
+                "Tarkus: <b>" + player.getKnowledge() + "</b><br>" +
+                "Läbitud missioonid: <b>" + game.getCompletedMissionCount() + "</b>";
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1f1f1f;
+            color: white;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background-color: #2c2c2c;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+        }
+
+        h1,
+        h2,
+        h3 {
+            text-align: center;
+            color: #f5c542;
+        }
+
+        input {
+            width: 100%;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            height: 32px;
+        }
+
+        button {
+            background-color: #f5c542;
+            color: black;
+            border: none;
+            padding: 10px 16px;
+            margin: 5px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        button:hover {
+            background-color: #ffd95e;
+            transform: scale(1.03);
+        }
+
+        #answers button {
+            width: 100%;
+            text-align: left;
+        }
+
+        #stats,
+        #log {
+            background-color: #3a3a3a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        #log {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Salme viikingite mäng</h1>
+
+        <div id="startScreen">
+            <p>Mängija nimi:</p>
+            <input id="playerName">
+            <button onclick="startGame()">Alusta mängu</button>
+        </div>
+
+        <div id="gameScreen" style="display:none;">
+            <p id="stats"></p>
+
+            <h2 id="missionTitle"></h2>
+            <p id="questionText"></p>
+
+            <div id="answers"></div>
+
+            <h3>Log:</h3>
+            <div id="log"></div>
+        </div>
+    </div>
+</body>
+
+</html>
